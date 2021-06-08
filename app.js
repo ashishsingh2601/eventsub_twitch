@@ -9,9 +9,9 @@ dotenv.config();
 
 //server setup
 const app = express();
-const callbackURL = 'https://f070189cdec8.ngrok.io';
-const clientID = 'bkckylftxa3rlrmk16diitiuhrngqt';
-const clientSecret = 'msuo047agrhbl7g523olqhp7kjqgrh';
+const callbackURL = process.env.CALLBACK_URL;
+const clientID = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
 
 
 const getAppAccessToken = async () => {
@@ -199,8 +199,8 @@ const eventSubHandler = async () => {
     let runDelete = false //set to true if you want to run deletion sequence
     if(runDelete === true && subscriptionList.data.length > 0){
         for(var i=0; i<subscriptionList.data.length; i++){
-            let deletionStatus = await deleteSubscription(appAccessToken, subscriptionList.data[i].id)
-            console.log(deletionStatus)
+            let deletionStatus = await deleteSubscription(appAccessToken, subscriptionList.data[i].id);
+            console.log(deletionStatus);
         }
     }
 }
@@ -225,11 +225,26 @@ app.post('/', jsonParser, (req, res)=>{
         res.send(req.body.challenge)
         console.log("SUBSCRIPTION CREATED SUCCESSFULLY")
     } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
-        // console.log("----------------------------------------------------------------", req.body)
+        console.log("----------------------------------------------------------------", req.body)
         if(req.body.subscription.type == 'channel.update'){
             if(req.body.event.category_name){
-                console.log(req.body.event.broadcaster_user_name, "Changed category to - ", req.body.event.category_name)
+                console.log(req.body.event.broadcaster_user_name, "changed category to - ", req.body.event.category_name)
             }
+            if(req.body.event.language){
+                console.log(req.body.event.broadcaster_user_name, "changed language to - ", req.body.event.language);
+            }
+            if(req.body.event.title){
+                console.log(req.body.event.broadcaster_user_name, "changed title to - ", req.body.event.title);
+            }
+        }
+        if(req.body.subscription.type == 'channel.follow'){
+            console.log(req.body.event.follower, "followed - ", req.body.event.broadcaster_user_name);
+        }
+        if(req.body.subscription.type == 'stream.online'){
+            console.log(req.body.event.broadcaster_user_name, " is online now!");
+        }
+        if(req.body.subscription.type == 'stream.offline'){
+            console.log(req.body.event.broadcaster_user_name, " went offline.");
         }
         
     } else {
@@ -241,6 +256,6 @@ app.post('/', jsonParser, (req, res)=>{
 
 
 //setup express server and ngrok connection
-const server = app.listen(3000, ()=> {
-    console.log(`Listening on port 3000`);
+const server = app.listen(process.env.PORT, ()=> {
+    console.log(`Listening on port ${process.env.PORT}`);
 });
