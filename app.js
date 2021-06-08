@@ -192,8 +192,8 @@ const eventSubHandler = async () => {
         // let newSubscription = await  createNewSubscription(appAccessToken, broadcaster_id, subscriptionType[i])
     }
 
-    let subscriptionList = await getAllSubscriptions(appAccessToken)
-    console.log(subscriptionList)
+    // let subscriptionList = await getAllSubscriptions(appAccessToken)
+    // console.log(subscriptionList)
 
     //deletes first subscription in subscriptionList -- change 'subscriptionList.data[0].id with the id of the specific subscription you would like deleted
     let runDelete = false //set to true if you want to run deletion sequence
@@ -207,78 +207,31 @@ const eventSubHandler = async () => {
 
 eventSubHandler();
 
-// app.route('/').get((req, res) => {
-//         console.log('Incoming Get request on /');
-//         res.send('There is no GET Handler');
-//     }).post((req, res) => {
-//     console.log('Incoming Post request on /-------------------------------------------------', req.json());
 
-//     // console.log(req)
-//     // the middleware above ran
-//     // and it prepared the tests for us
-//     // so check if we event generated a twitch_hub
-//     // if (req.headers['twitch-eventsub-message-type'] == 'webhook_callback_verification') {
-//     //     // it's a another check for if it's a challenge request
-//     //     if (req.body.hasOwnProperty('challenge')) {
-//     //     // we can validate the signature here so we'll do that
-//     //         if (req.twitch_hex == req.twitch_signature) {
-//     //             console.log('Got a challenge, return the challenge');
-//     //             res.send(encodeURIComponent(req.body.challenge));
-//     //             return;
-//     //         }
-//     //     }
-//     //     // unexpected hook request
-//     //     res.status(403).send('Denied');
-//     // } else if (req.headers['twitch-eventsub-message-type'] == 'revocation') {
-//     //     // the webhook was revoked
-//     //     // you should probably do something more useful here
-//     //     // than this example does
-//     //     res.send('Ok');
-//     // } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
-//     //     if (req.twitch_hex == req.twitch_signature) {
-//     //         console.log('The signature matched');
-//     //         // the signature passed so it should be a valid payload from Twitch
-//     //         // we ok as quickly as possible
-//     //         res.send('Ok');
+/*
+Channel Follow : This guy followed this streamer
+Channel Update : 
+ -> Category 
+ -> Language
+ -> Title
+ -> ... 
+Stream Online : This guy went online
+Stream Offline : This guy went offline
+*/
 
-//     //         // you can do whatever you want with the data
-//     //         // it's in req.body
-
-//     //         // write out the data to a log for now
-//     //         fs.appendFileSync(path.join(
-//     //             __dirname,
-//     //             'webhooks.log'
-//     //         ), JSON.stringify({
-//     //             body: req.body,
-//     //             headers: req.headers
-//     //         }) + "\n");
-//     //         fs.appendFileSync(path.join(
-//     //             __dirname,
-//     //             'last_webhooks.log'
-//     //         ), JSON.stringify({
-//     //             body: req.body,
-//     //             headers: req.headers
-//     //         }, null, 4));
-//     //     } else {
-//     //         console.log('The Signature did not match');
-//     //         res.send('Ok');
-//     //     }
-//     // } else {
-//     //     console.log('Invalid hook sent to me');
-//     //     res.send('Ok');
-//     // }
-// });
-
-//request handler - receives requests from ngrok
 app.post('/', jsonParser, (req, res)=>{
-    
-    //to validate that you own the callback you must return the challenge back to twitch
-    console.log(req.body);
-    
+        
     if(req.body.challenge){
         res.send(req.body.challenge)
+        console.log("SUBSCRIPTION CREATED SUCCESSFULLY")
     } else if (req.headers['twitch-eventsub-message-type'] == 'notification') {
-        console.log("-----------------------------------------------------------------", req.body)
+        // console.log("----------------------------------------------------------------", req.body)
+        if(req.body.subscription.type == 'channel.update'){
+            if(req.body.event.category_name){
+                console.log(req.body.event.broadcaster_user_name, "Changed category to - ", req.body.event.category_name)
+            }
+        }
+        
     } else {
         console.log(req.body);
         //response to twitch with 2XX status code if successful (prevents multiple of the same notifications)
